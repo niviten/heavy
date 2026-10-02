@@ -20,13 +20,17 @@ go run ./cmd/server
 
 The server exposes:
 
-- `GET /` — application information
-- `GET /health` — application and MySQL health
+- `GET /api/json` — application information
+- `GET /api/json/health` — application and MySQL health
+- `GET /api/json/muscle-groups` — all muscle groups
+- `GET /api/json/muscle-groups/:id` — a muscle group by ID
+- `GET /api/json/muscle-groups/name/:name` — a muscle group by name
 
 Run the tests with:
 
 ```sh
 go test ./...
+gotestsum ./...
 ```
 
 ## Structure

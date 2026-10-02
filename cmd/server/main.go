@@ -75,7 +75,10 @@ func run() error {
 
 	healthService := service.NewHealthService(healthRepository)
 	healthController := controller.NewHealthController(healthService)
-	routes.Register(e, healthController)
+	muscleGroupRepository := repository.NewMuscleGroupRepository(db)
+	muscleGroupService := service.NewMuscleGroupService(muscleGroupRepository)
+	muscleGroupController := controller.NewMuscleGroupController(muscleGroupService)
+	routes.Register(e, healthController, muscleGroupController)
 
 	server := &http.Server{
 		Addr:              cfg.Address(),
