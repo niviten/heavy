@@ -22,7 +22,9 @@ func OpenMySQL(cfg config.DatabaseConfig) (*sql.DB, error) {
 	driverConfig.DBName = cfg.Name
 	driverConfig.ParseTime = true
 	driverConfig.Loc = time.UTC
-	driverConfig.Params = map[string]string{"charset": "utf8mb4"}
+	if err := driverConfig.Apply(driver.Charset("utf8mb4", "")); err != nil {
+		return nil, fmt.Errorf("configure mysql charset: %w", err)
+	}
 
 	connector, err := driver.NewConnector(driverConfig)
 	if err != nil {
