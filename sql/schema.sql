@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `muscle_group` (
+CREATE TABLE IF NOT EXISTS `muscle_groups` (
   `muscle_group_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `muscle_group_name` varchar(100) NOT NULL,
   `muscle_group_display_name` varchar(100) NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `muscle_group` (
   UNIQUE KEY `muscle_group_unique` (`muscle_group_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `excercise` (
+CREATE TABLE IF NOT EXISTS `excercises` (
   `excercise_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `excercise_name` varchar(100) NOT NULL,
   `muscle_group_id` bigint(20) unsigned NOT NULL,
@@ -16,12 +16,12 @@ CREATE TABLE IF NOT EXISTS `excercise` (
   KEY `excercise_muscle_group_FK` (`muscle_group_id`),
   CONSTRAINT `excercise_muscle_group_FK`
     FOREIGN KEY (`muscle_group_id`)
-    REFERENCES `muscle_group` (`muscle_group_id`)
+    REFERENCES `muscle_groups` (`muscle_group_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `workout_routine` (
+CREATE TABLE IF NOT EXISTS `workout_routines` (
   `workout_routine_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `workout_routine_name` varchar(100) NOT NULL,
   `workout_routine_description` varchar(255) DEFAULT NULL,

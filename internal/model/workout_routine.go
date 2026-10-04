@@ -1,6 +1,6 @@
 package model
 
-// WorkoutRoutine reflects a row in the workout_routine table.
+// WorkoutRoutine reflects a row in the workout_routines table.
 type WorkoutRoutine struct {
 	ID          int64
 	Name        string

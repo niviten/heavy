@@ -17,7 +17,7 @@ type MuscleGroupRepository interface {
 	GetAll(context.Context) ([]model.MuscleGroup, error)
 }
 
-// MuscleGroupService lazily loads the read-only muscle_group table and keeps
+// MuscleGroupService lazily loads the read-only muscle_groups table and keeps
 // indexed, immutable copies in memory for subsequent callers.
 type MuscleGroupService struct {
 	repository MuscleGroupRepository

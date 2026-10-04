@@ -1,6 +1,6 @@
 package model
 
-// Excercise reflects an active row in the excercise table. The spelling is
+// Excercise reflects an active row in the excercises table. The spelling is
 // intentionally kept in sync with the existing database schema.
 type Excercise struct {
 	ID            int64

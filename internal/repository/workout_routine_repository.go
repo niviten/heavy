@@ -44,7 +44,7 @@ func (r *WorkoutRoutineRepository) GetAll(
 	}
 
 	var total int64
-	countStatement := "SELECT COUNT(*) FROM workout_routine" + whereClause
+	countStatement := "SELECT COUNT(*) FROM workout_routines" + whereClause
 	if err := r.database.QueryRowContext(ctx, countStatement, arguments...).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count workout routines: %w", err)
 	}
@@ -64,7 +64,7 @@ func (r *WorkoutRoutineRepository) GetAll(
 	}
 	statement := `
 		SELECT workout_routine_id, workout_routine_name, workout_routine_description
-		FROM workout_routine` + whereClause + `
+		FROM workout_routines` + whereClause + `
 		ORDER BY ` + sortColumn + ` ` + sortOrder + `
 		LIMIT ? OFFSET ?`
 	listArguments := append(append([]any{}, arguments...), query.PageSize, (query.Page-1)*query.PageSize)
@@ -93,7 +93,7 @@ func (r *WorkoutRoutineRepository) GetByID(
 ) (model.WorkoutRoutine, error) {
 	const statement = `
 		SELECT workout_routine_id, workout_routine_name, workout_routine_description
-		FROM workout_routine
+		FROM workout_routines
 		WHERE workout_routine_id = ?`
 
 	var routine model.WorkoutRoutine
@@ -117,7 +117,7 @@ func (r *WorkoutRoutineRepository) Create(
 	description *string,
 ) (model.WorkoutRoutine, error) {
 	const statement = `
-		INSERT INTO workout_routine (workout_routine_name, workout_routine_description)
+		INSERT INTO workout_routines (workout_routine_name, workout_routine_description)
 		VALUES (?, ?)`
 
 	result, err := r.database.ExecContext(ctx, statement, name, description)
@@ -151,7 +151,7 @@ func (r *WorkoutRoutineRepository) Update(
 	if len(assignments) == 0 {
 		return r.GetByID(ctx, id)
 	}
-	statement := `UPDATE workout_routine SET ` + strings.Join(assignments, ", ") +
+	statement := `UPDATE workout_routines SET ` + strings.Join(assignments, ", ") +
 		` WHERE workout_routine_id = ?`
 	arguments = append(arguments, id)
 
@@ -162,7 +162,7 @@ func (r *WorkoutRoutineRepository) Update(
 }
 
 func (r *WorkoutRoutineRepository) Delete(ctx context.Context, id int64) (bool, error) {
-	const statement = `DELETE FROM workout_routine WHERE workout_routine_id = ?`
+	const statement = `DELETE FROM workout_routines WHERE workout_routine_id = ?`
 
 	result, err := r.database.ExecContext(ctx, statement, id)
 	if err != nil {

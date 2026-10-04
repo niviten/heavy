@@ -50,7 +50,7 @@ func (r *ExcerciseRepository) GetByMuscleGroup(
 func (r *ExcerciseRepository) GetByID(ctx context.Context, id int64) (model.Excercise, error) {
 	const statement = `
 		SELECT excercise_id, excercise_name, muscle_group_id
-		FROM excercise
+		FROM excercises
 		WHERE excercise_id = ? AND is_deleted = 0`
 
 	var excercise model.Excercise
@@ -74,7 +74,7 @@ func (r *ExcerciseRepository) Create(
 	muscleGroupID int64,
 ) (model.Excercise, error) {
 	const statement = `
-		INSERT INTO excercise (excercise_name, muscle_group_id)
+		INSERT INTO excercises (excercise_name, muscle_group_id)
 		VALUES (?, ?)`
 
 	result, err := r.database.ExecContext(ctx, statement, name, muscleGroupID)
@@ -107,7 +107,7 @@ func (r *ExcerciseRepository) Update(
 	if len(assignments) == 0 {
 		return r.GetByID(ctx, id)
 	}
-	statement := `UPDATE excercise SET ` + strings.Join(assignments, ", ") +
+	statement := `UPDATE excercises SET ` + strings.Join(assignments, ", ") +
 		` WHERE excercise_id = ? AND is_deleted = 0`
 	arguments = append(arguments, id)
 
@@ -122,7 +122,7 @@ func (r *ExcerciseRepository) Update(
 
 func (r *ExcerciseRepository) SoftDelete(ctx context.Context, id int64) (bool, error) {
 	const statement = `
-		UPDATE excercise
+		UPDATE excercises
 		SET is_deleted = 1
 		WHERE excercise_id = ? AND is_deleted = 0`
 
@@ -154,7 +154,7 @@ func (r *ExcerciseRepository) list(
 	}
 	whereClause := strings.Join(conditions, " AND ")
 
-	countStatement := "SELECT COUNT(*) FROM excercise WHERE " + whereClause
+	countStatement := "SELECT COUNT(*) FROM excercises WHERE " + whereClause
 	var total int64
 	if err := r.database.QueryRowContext(ctx, countStatement, arguments...).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count excercises: %w", err)
@@ -175,7 +175,7 @@ func (r *ExcerciseRepository) list(
 	}
 	statement := `
 		SELECT excercise_id, excercise_name, muscle_group_id
-		FROM excercise
+		FROM excercises
 		WHERE ` + whereClause + `
 		ORDER BY ` + sortColumn + ` ` + sortOrder + `
 		LIMIT ? OFFSET ?`

@@ -1,7 +1,7 @@
 // Package model contains types that reflect database tables.
 package model
 
-// MuscleGroup reflects a row in the muscle_group table.
+// MuscleGroup reflects a row in the muscle_groups table.
 type MuscleGroup struct {
 	ID          int64
 	Name        string

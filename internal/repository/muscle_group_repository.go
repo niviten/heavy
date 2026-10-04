@@ -10,7 +10,7 @@ import (
 
 const selectAllMuscleGroups = `
 	SELECT muscle_group_id, muscle_group_name, muscle_group_display_name
-	FROM muscle_group
+	FROM muscle_groups
 	ORDER BY muscle_group_id`
 
 // MuscleGroupRepository reads muscle groups from MySQL.
