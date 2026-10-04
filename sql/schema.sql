@@ -20,3 +20,11 @@ CREATE TABLE IF NOT EXISTS `excercise` (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `workout_routine` (
+  `workout_routine_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `workout_routine_name` varchar(100) NOT NULL,
+  `workout_routine_description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`workout_routine_id`),
+  UNIQUE KEY `workout_routine_unique` (`workout_routine_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;

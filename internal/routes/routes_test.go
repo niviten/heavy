@@ -60,6 +60,38 @@ func (excerciseManager) Update(context.Context, int64, *string, *int64) (model.E
 
 func (excerciseManager) Delete(context.Context, int64) error { return nil }
 
+type workoutRoutineManager struct{}
+
+func (workoutRoutineManager) GetAll(
+	context.Context,
+	model.WorkoutRoutineQuery,
+) (model.WorkoutRoutinePage, error) {
+	return model.WorkoutRoutinePage{Items: []model.WorkoutRoutine{}, Page: 1, PageSize: 20}, nil
+}
+
+func (workoutRoutineManager) GetByID(context.Context, int64) (model.WorkoutRoutine, error) {
+	return model.WorkoutRoutine{ID: 1, Name: "Push Day"}, nil
+}
+
+func (workoutRoutineManager) Create(
+	context.Context,
+	string,
+	*string,
+) (model.WorkoutRoutine, error) {
+	return model.WorkoutRoutine{ID: 1, Name: "Push Day"}, nil
+}
+
+func (workoutRoutineManager) Update(
+	context.Context,
+	int64,
+	*string,
+	*string,
+) (model.WorkoutRoutine, error) {
+	return model.WorkoutRoutine{ID: 1, Name: "Push Day"}, nil
+}
+
+func (workoutRoutineManager) Delete(context.Context, int64) error { return nil }
+
 func TestRegister(t *testing.T) {
 	e := echo.New()
 	Register(
@@ -67,6 +99,7 @@ func TestRegister(t *testing.T) {
 		controller.NewHealthController(healthyChecker{}),
 		controller.NewMuscleGroupController(muscleGroupReader{}),
 		controller.NewExcerciseController(excerciseManager{}),
+		controller.NewWorkoutRoutineController(workoutRoutineManager{}),
 	)
 
 	for _, path := range []string{
@@ -78,6 +111,8 @@ func TestRegister(t *testing.T) {
 		"/api/json/excercises",
 		"/api/json/excercises/1",
 		"/api/json/muscle-groups/1/excercises",
+		"/api/json/workout-routines",
+		"/api/json/workout-routines/1",
 	} {
 		recorder := httptest.NewRecorder()
 		request := httptest.NewRequest(http.MethodGet, path, nil)
