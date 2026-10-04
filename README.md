@@ -14,9 +14,25 @@ progress-tracking features.
 ```sh
 cp .env.example .env
 # Update the database credentials in .env.
+make db-setup
 go mod tidy
 go run ./cmd/server
 ```
+
+The Go database commands load connection settings from `.env`:
+
+```sh
+go run ./cmd/migrate # Apply sql/schema.sql
+go run ./cmd/seed    # Upsert the canonical muscle groups from sql/seed.sql
+
+# Equivalent convenience wrappers:
+make migrate
+make seed
+make db-setup
+```
+
+The database configured by `DB_NAME` must already exist. Environment variables
+set by the shell take precedence over values in `.env`.
 
 The server exposes:
 

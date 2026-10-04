@@ -14,6 +14,16 @@ import (
 // OpenMySQL creates and configures a MySQL connection pool. Database queries
 // and health checks belong in the repository layer.
 func OpenMySQL(cfg config.DatabaseConfig) (*sql.DB, error) {
+	return openMySQL(cfg, false)
+}
+
+// OpenMySQLForScripts creates a connection pool that permits trusted SQL files
+// containing multiple statements. Application queries should use OpenMySQL.
+func OpenMySQLForScripts(cfg config.DatabaseConfig) (*sql.DB, error) {
+	return openMySQL(cfg, true)
+}
+
+func openMySQL(cfg config.DatabaseConfig, multiStatements bool) (*sql.DB, error) {
 	driverConfig := driver.NewConfig()
 	driverConfig.User = cfg.User
 	driverConfig.Passwd = cfg.Password
@@ -22,6 +32,7 @@ func OpenMySQL(cfg config.DatabaseConfig) (*sql.DB, error) {
 	driverConfig.DBName = cfg.Name
 	driverConfig.ParseTime = true
 	driverConfig.Loc = time.UTC
+	driverConfig.MultiStatements = multiStatements
 	if err := driverConfig.Apply(driver.Charset("utf8mb4", "")); err != nil {
 		return nil, fmt.Errorf("configure mysql charset: %w", err)
 	}
