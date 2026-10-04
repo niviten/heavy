@@ -32,12 +32,41 @@ func (muscleGroupReader) GetByName(context.Context, string) (model.MuscleGroup, 
 	return model.MuscleGroup{ID: 1, Name: "chest", DisplayName: "Chest"}, nil
 }
 
+type excerciseManager struct{}
+
+func (excerciseManager) GetAll(context.Context, model.ExcerciseQuery) (model.ExcercisePage, error) {
+	return model.ExcercisePage{Items: []model.Excercise{}, Page: 1, PageSize: 20}, nil
+}
+
+func (excerciseManager) GetByID(context.Context, int64) (model.Excercise, error) {
+	return model.Excercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
+}
+
+func (excerciseManager) GetByMuscleGroup(
+	context.Context,
+	int64,
+	model.ExcerciseQuery,
+) (model.ExcercisePage, error) {
+	return model.ExcercisePage{Items: []model.Excercise{}, Page: 1, PageSize: 20}, nil
+}
+
+func (excerciseManager) Create(context.Context, string, int64) (model.Excercise, error) {
+	return model.Excercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
+}
+
+func (excerciseManager) Update(context.Context, int64, *string, *int64) (model.Excercise, error) {
+	return model.Excercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
+}
+
+func (excerciseManager) Delete(context.Context, int64) error { return nil }
+
 func TestRegister(t *testing.T) {
 	e := echo.New()
 	Register(
 		e,
 		controller.NewHealthController(healthyChecker{}),
 		controller.NewMuscleGroupController(muscleGroupReader{}),
+		controller.NewExcerciseController(excerciseManager{}),
 	)
 
 	for _, path := range []string{
@@ -46,6 +75,9 @@ func TestRegister(t *testing.T) {
 		"/api/json/muscle-groups",
 		"/api/json/muscle-groups/1",
 		"/api/json/muscle-groups/name/Chest",
+		"/api/json/excercises",
+		"/api/json/excercises/1",
+		"/api/json/muscle-groups/1/excercises",
 	} {
 		recorder := httptest.NewRecorder()
 		request := httptest.NewRequest(http.MethodGet, path, nil)

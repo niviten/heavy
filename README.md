@@ -25,6 +25,41 @@ The server exposes:
 - `GET /api/json/muscle-groups` — all muscle groups
 - `GET /api/json/muscle-groups/:id` — a muscle group by ID
 - `GET /api/json/muscle-groups/name/:name` — a muscle group by name
+- `GET /api/json/excercises` — paginated, searchable, sortable exercises
+- `GET /api/json/excercises/:id` — an exercise by ID
+- `GET /api/json/muscle-groups/:muscle_group_id/excercises` — exercises in a muscle group
+- `POST /api/json/excercises` — create an exercise
+- `PATCH /api/json/excercises/:id` — update an exercise name and/or muscle group
+- `DELETE /api/json/excercises/:id` — soft-delete an exercise
+
+Exercise collection endpoints accept `page` (default `1`), `page_size`
+(default `20`, maximum `100`), `search`, `sort_by`, and `sort_order`. Valid
+sort fields are `excercise_id`, `excercise_name`, and `muscle_group_id`; sort
+order is `asc` or `desc`.
+
+Create request:
+
+```json
+{
+  "excercise_name": "Incline Dumbbell Press",
+  "muscle_group_id": 1
+}
+```
+
+Update request:
+
+```json
+{
+  "excercise_name": "Incline Press",
+  "muscle_group_id": 2
+}
+```
+
+Either update field can be omitted, so the same endpoint can rename an
+exercise, change its muscle group, or perform both changes together.
+
+The spelling `excercise` is retained in routes and JSON fields to match the
+existing database schema. The complete schema is saved in `sql/schema.sql`.
 
 Run the tests with:
 
