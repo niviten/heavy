@@ -25,12 +25,12 @@ The server exposes:
 - `GET /api/json/muscle-groups` — all muscle groups
 - `GET /api/json/muscle-groups/:id` — a muscle group by ID
 - `GET /api/json/muscle-groups/name/:name` — a muscle group by name
-- `GET /api/json/excercises` — paginated, searchable, sortable exercises
-- `GET /api/json/excercises/:id` — an exercise by ID
-- `GET /api/json/muscle-groups/:muscle_group_id/excercises` — exercises in a muscle group
-- `POST /api/json/excercises` — create an exercise
-- `PATCH /api/json/excercises/:id` — update an exercise name and/or muscle group
-- `DELETE /api/json/excercises/:id` — soft-delete an exercise
+- `GET /api/json/exercises` — paginated, searchable, sortable exercises
+- `GET /api/json/exercises/:id` — an exercise by ID
+- `GET /api/json/muscle-groups/:muscle_group_id/exercises` — exercises in a muscle group
+- `POST /api/json/exercises` — create an exercise
+- `PATCH /api/json/exercises/:id` — update an exercise name and/or muscle group
+- `DELETE /api/json/exercises/:id` — soft-delete an exercise
 - `GET /api/json/workout-routines` — paginated, searchable, sortable workout routines
 - `GET /api/json/workout-routines/:id` — a workout routine by ID
 - `POST /api/json/workout-routines` — create a workout routine
@@ -39,14 +39,14 @@ The server exposes:
 
 Exercise collection endpoints accept `page` (default `1`), `page_size`
 (default `20`, maximum `100`), `search`, `sort_by`, and `sort_order`. Valid
-sort fields are `excercise_id`, `excercise_name`, and `muscle_group_id`; sort
+sort fields are `exercise_id`, `exercise_name`, and `muscle_group_id`; sort
 order is `asc` or `desc`.
 
 Create request:
 
 ```json
 {
-  "excercise_name": "Incline Dumbbell Press",
+  "exercise_name": "Incline Dumbbell Press",
   "muscle_group_id": 1
 }
 ```
@@ -55,7 +55,7 @@ Update request:
 
 ```json
 {
-  "excercise_name": "Incline Press",
+  "exercise_name": "Incline Press",
   "muscle_group_id": 2
 }
 ```
@@ -63,8 +63,8 @@ Update request:
 Either update field can be omitted, so the same endpoint can rename an
 exercise, change its muscle group, or perform both changes together.
 
-The spelling `excercise` is retained in routes and JSON fields to match the
-existing database schema. The complete schema is saved in `sql/schema.sql`.
+Exercise table, column, route, and JSON field names use the corrected
+`exercise` spelling. The complete schema is saved in `sql/schema.sql`.
 
 Workout routine collection endpoints use the same pagination parameters.
 Their valid sort fields are `workout_routine_id`, `workout_routine_name`, and

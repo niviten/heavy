@@ -12,10 +12,10 @@ import (
 	"github.com/niviten/heavy/internal/service"
 )
 
-type stubExcerciseManager struct {
-	page       model.ExcercisePage
-	excercise  model.Excercise
-	query      model.ExcerciseQuery
+type stubExerciseManager struct {
+	page       model.ExercisePage
+	exercise   model.Exercise
+	query      model.ExerciseQuery
 	id         int64
 	muscleID   int64
 	name       string
@@ -23,45 +23,45 @@ type stubExcerciseManager struct {
 	deleteCall bool
 }
 
-func (s *stubExcerciseManager) GetAll(
+func (s *stubExerciseManager) GetAll(
 	_ context.Context,
-	query model.ExcerciseQuery,
-) (model.ExcercisePage, error) {
+	query model.ExerciseQuery,
+) (model.ExercisePage, error) {
 	s.query = query
 	return s.page, s.err
 }
 
-func (s *stubExcerciseManager) GetByID(_ context.Context, id int64) (model.Excercise, error) {
+func (s *stubExerciseManager) GetByID(_ context.Context, id int64) (model.Exercise, error) {
 	s.id = id
-	return s.excercise, s.err
+	return s.exercise, s.err
 }
 
-func (s *stubExcerciseManager) GetByMuscleGroup(
+func (s *stubExerciseManager) GetByMuscleGroup(
 	_ context.Context,
 	muscleGroupID int64,
-	query model.ExcerciseQuery,
-) (model.ExcercisePage, error) {
+	query model.ExerciseQuery,
+) (model.ExercisePage, error) {
 	s.muscleID = muscleGroupID
 	s.query = query
 	return s.page, s.err
 }
 
-func (s *stubExcerciseManager) Create(
+func (s *stubExerciseManager) Create(
 	_ context.Context,
 	name string,
 	muscleGroupID int64,
-) (model.Excercise, error) {
+) (model.Exercise, error) {
 	s.name = name
 	s.muscleID = muscleGroupID
-	return s.excercise, s.err
+	return s.exercise, s.err
 }
 
-func (s *stubExcerciseManager) Update(
+func (s *stubExerciseManager) Update(
 	_ context.Context,
 	id int64,
 	name *string,
 	muscleGroupID *int64,
-) (model.Excercise, error) {
+) (model.Exercise, error) {
 	s.id = id
 	if name != nil {
 		s.name = *name
@@ -69,32 +69,32 @@ func (s *stubExcerciseManager) Update(
 	if muscleGroupID != nil {
 		s.muscleID = *muscleGroupID
 	}
-	return s.excercise, s.err
+	return s.exercise, s.err
 }
 
-func (s *stubExcerciseManager) Delete(_ context.Context, id int64) error {
+func (s *stubExerciseManager) Delete(_ context.Context, id int64) error {
 	s.id = id
 	s.deleteCall = true
 	return s.err
 }
 
-func TestExcerciseControllerGetAll(t *testing.T) {
+func TestExerciseControllerGetAll(t *testing.T) {
 	e := echo.New()
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		http.MethodGet,
-		"/api/json/excercises?page=2&page_size=5&search=press&sort_by=excercise_name&sort_order=desc",
+		"/api/json/exercises?page=2&page_size=5&search=press&sort_by=exercise_name&sort_order=desc",
 		nil,
 	)
 	ctx := e.NewContext(request, recorder)
-	manager := &stubExcerciseManager{page: model.ExcercisePage{
-		Items:      []model.Excercise{{ID: 3, Name: "Bench Press", MuscleGroupID: 1}},
+	manager := &stubExerciseManager{page: model.ExercisePage{
+		Items:      []model.Exercise{{ID: 3, Name: "Bench Press", MuscleGroupID: 1}},
 		Page:       2,
 		PageSize:   5,
 		TotalItems: 8,
 		TotalPages: 2,
 	}}
-	controller := NewExcerciseController(manager)
+	controller := NewExerciseController(manager)
 
 	if err := controller.GetAll(ctx); err != nil {
 		t.Fatalf("GetAll() error = %v", err)
@@ -102,18 +102,18 @@ func TestExcerciseControllerGetAll(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Errorf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
-	wantBody := "{\"data\":[{\"excercise_id\":3,\"excercise_name\":\"Bench Press\",\"muscle_group_id\":1}]," +
+	wantBody := "{\"data\":[{\"exercise_id\":3,\"exercise_name\":\"Bench Press\",\"muscle_group_id\":1}]," +
 		"\"pagination\":{\"page\":2,\"page_size\":5,\"total_items\":8,\"total_pages\":2}}\n"
 	if got := recorder.Body.String(); got != wantBody {
 		t.Errorf("body = %q, want %q", got, wantBody)
 	}
 	if manager.query.Page != 2 || manager.query.PageSize != 5 || manager.query.Search != "press" ||
-		manager.query.SortBy != "excercise_name" || manager.query.SortOrder != "desc" {
+		manager.query.SortBy != "exercise_name" || manager.query.SortOrder != "desc" {
 		t.Errorf("query = %+v", manager.query)
 	}
 }
 
-func TestExcerciseControllerRejectsInvalidCollectionQuery(t *testing.T) {
+func TestExerciseControllerRejectsInvalidCollectionQuery(t *testing.T) {
 	tests := []string{
 		"?page=0",
 		"?page_size=101",
@@ -124,9 +124,9 @@ func TestExcerciseControllerRejectsInvalidCollectionQuery(t *testing.T) {
 		t.Run(query, func(t *testing.T) {
 			e := echo.New()
 			recorder := httptest.NewRecorder()
-			request := httptest.NewRequest(http.MethodGet, "/api/json/excercises"+query, nil)
+			request := httptest.NewRequest(http.MethodGet, "/api/json/exercises"+query, nil)
 			ctx := e.NewContext(request, recorder)
-			controller := NewExcerciseController(&stubExcerciseManager{})
+			controller := NewExerciseController(&stubExerciseManager{})
 
 			err := controller.GetAll(ctx)
 			httpError, ok := err.(*echo.HTTPError)
@@ -137,20 +137,20 @@ func TestExcerciseControllerRejectsInvalidCollectionQuery(t *testing.T) {
 	}
 }
 
-func TestExcerciseControllerCreate(t *testing.T) {
+func TestExerciseControllerCreate(t *testing.T) {
 	e := echo.New()
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		http.MethodPost,
-		"/api/json/excercises",
-		strings.NewReader(`{"excercise_name":"Bench Press","muscle_group_id":1}`),
+		"/api/json/exercises",
+		strings.NewReader(`{"exercise_name":"Bench Press","muscle_group_id":1}`),
 	)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	ctx := e.NewContext(request, recorder)
-	manager := &stubExcerciseManager{excercise: model.Excercise{
+	manager := &stubExerciseManager{exercise: model.Exercise{
 		ID: 4, Name: "Bench Press", MuscleGroupID: 1,
 	}}
-	controller := NewExcerciseController(manager)
+	controller := NewExerciseController(manager)
 
 	if err := controller.Create(ctx); err != nil {
 		t.Fatalf("Create() error = %v", err)
@@ -163,14 +163,14 @@ func TestExcerciseControllerCreate(t *testing.T) {
 	}
 }
 
-func TestExcerciseControllerDelete(t *testing.T) {
+func TestExerciseControllerDelete(t *testing.T) {
 	e := echo.New()
 	recorder := httptest.NewRecorder()
-	request := httptest.NewRequest(http.MethodDelete, "/api/json/excercises/4", nil)
+	request := httptest.NewRequest(http.MethodDelete, "/api/json/exercises/4", nil)
 	ctx := e.NewContext(request, recorder)
 	ctx.SetPathValues(echo.PathValues{{Name: "id", Value: "4"}})
-	manager := &stubExcerciseManager{}
-	controller := NewExcerciseController(manager)
+	manager := &stubExerciseManager{}
+	controller := NewExerciseController(manager)
 
 	if err := controller.Delete(ctx); err != nil {
 		t.Fatalf("Delete() error = %v", err)
@@ -180,21 +180,21 @@ func TestExcerciseControllerDelete(t *testing.T) {
 	}
 }
 
-func TestExcerciseControllerUpdatesMuscleGroup(t *testing.T) {
+func TestExerciseControllerUpdatesMuscleGroup(t *testing.T) {
 	e := echo.New()
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		http.MethodPatch,
-		"/api/json/excercises/4",
+		"/api/json/exercises/4",
 		strings.NewReader(`{"muscle_group_id":2}`),
 	)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	ctx := e.NewContext(request, recorder)
 	ctx.SetPathValues(echo.PathValues{{Name: "id", Value: "4"}})
-	manager := &stubExcerciseManager{excercise: model.Excercise{
+	manager := &stubExerciseManager{exercise: model.Exercise{
 		ID: 4, Name: "Bench Press", MuscleGroupID: 2,
 	}}
-	controller := NewExcerciseController(manager)
+	controller := NewExerciseController(manager)
 
 	if err := controller.Update(ctx); err != nil {
 		t.Fatalf("Update() error = %v", err)
@@ -204,22 +204,22 @@ func TestExcerciseControllerUpdatesMuscleGroup(t *testing.T) {
 	}
 }
 
-func TestExcerciseControllerMapsDomainErrors(t *testing.T) {
+func TestExerciseControllerMapsDomainErrors(t *testing.T) {
 	tests := []struct {
 		name string
 		err  error
 		code int
 	}{
-		{name: "not found", err: service.ErrExcerciseNotFound, code: http.StatusNotFound},
+		{name: "not found", err: service.ErrExerciseNotFound, code: http.StatusNotFound},
 		{name: "muscle group not found", err: service.ErrMuscleGroupNotFound, code: http.StatusNotFound},
-		{name: "duplicate", err: service.ErrExcerciseNameConflict, code: http.StatusConflict},
-		{name: "invalid name", err: service.ErrInvalidExcerciseName, code: http.StatusBadRequest},
+		{name: "duplicate", err: service.ErrExerciseNameConflict, code: http.StatusConflict},
+		{name: "invalid name", err: service.ErrInvalidExerciseName, code: http.StatusBadRequest},
 		{name: "invalid muscle group id", err: service.ErrInvalidMuscleGroupID, code: http.StatusBadRequest},
-		{name: "empty update", err: service.ErrEmptyExcerciseUpdate, code: http.StatusBadRequest},
+		{name: "empty update", err: service.ErrEmptyExerciseUpdate, code: http.StatusBadRequest},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			httpError, ok := excerciseHTTPError(test.err).(*echo.HTTPError)
+			httpError, ok := exerciseHTTPError(test.err).(*echo.HTTPError)
 			if !ok || httpError.Code != test.code {
 				t.Fatalf("error = %v, want HTTP %d", httpError, test.code)
 			}

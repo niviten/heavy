@@ -78,9 +78,9 @@ func run() error {
 	muscleGroupRepository := repository.NewMuscleGroupRepository(db)
 	muscleGroupService := service.NewMuscleGroupService(muscleGroupRepository)
 	muscleGroupController := controller.NewMuscleGroupController(muscleGroupService)
-	excerciseRepository := repository.NewExcerciseRepository(db)
-	excerciseService := service.NewExcerciseService(excerciseRepository, muscleGroupService)
-	excerciseController := controller.NewExcerciseController(excerciseService)
+	exerciseRepository := repository.NewExerciseRepository(db)
+	exerciseService := service.NewExerciseService(exerciseRepository, muscleGroupService)
+	exerciseController := controller.NewExerciseController(exerciseService)
 	workoutRoutineRepository := repository.NewWorkoutRoutineRepository(db)
 	workoutRoutineService := service.NewWorkoutRoutineService(workoutRoutineRepository)
 	workoutRoutineController := controller.NewWorkoutRoutineController(workoutRoutineService)
@@ -88,7 +88,7 @@ func run() error {
 		e,
 		healthController,
 		muscleGroupController,
-		excerciseController,
+		exerciseController,
 		workoutRoutineController,
 	)
 

@@ -12,92 +12,92 @@ import (
 )
 
 var (
-	ErrExcerciseNotFound          = errors.New("excercise not found")
-	ErrExcerciseNameConflict      = errors.New("excercise name already exists")
-	ErrExcerciseMuscleGroupAbsent = errors.New("muscle group not found")
+	ErrExerciseNotFound          = errors.New("exercise not found")
+	ErrExerciseNameConflict      = errors.New("exercise name already exists")
+	ErrExerciseMuscleGroupAbsent = errors.New("muscle group not found")
 )
 
-var excerciseSortColumns = map[string]string{
-	"excercise_id":    "excercise_id",
-	"excercise_name":  "excercise_name",
+var exerciseSortColumns = map[string]string{
+	"exercise_id":     "exercise_id",
+	"exercise_name":   "exercise_name",
 	"muscle_group_id": "muscle_group_id",
 }
 
-// ExcerciseRepository persists exercises in MySQL.
-type ExcerciseRepository struct {
+// ExerciseRepository persists exercises in MySQL.
+type ExerciseRepository struct {
 	database *sql.DB
 }
 
-func NewExcerciseRepository(database *sql.DB) *ExcerciseRepository {
-	return &ExcerciseRepository{database: database}
+func NewExerciseRepository(database *sql.DB) *ExerciseRepository {
+	return &ExerciseRepository{database: database}
 }
 
-func (r *ExcerciseRepository) GetAll(
+func (r *ExerciseRepository) GetAll(
 	ctx context.Context,
-	query model.ExcerciseQuery,
-) ([]model.Excercise, int64, error) {
+	query model.ExerciseQuery,
+) ([]model.Exercise, int64, error) {
 	return r.list(ctx, query, nil)
 }
 
-func (r *ExcerciseRepository) GetByMuscleGroup(
+func (r *ExerciseRepository) GetByMuscleGroup(
 	ctx context.Context,
 	muscleGroupID int64,
-	query model.ExcerciseQuery,
-) ([]model.Excercise, int64, error) {
+	query model.ExerciseQuery,
+) ([]model.Exercise, int64, error) {
 	return r.list(ctx, query, &muscleGroupID)
 }
 
-func (r *ExcerciseRepository) GetByID(ctx context.Context, id int64) (model.Excercise, error) {
+func (r *ExerciseRepository) GetByID(ctx context.Context, id int64) (model.Exercise, error) {
 	const statement = `
-		SELECT excercise_id, excercise_name, muscle_group_id
-		FROM excercises
-		WHERE excercise_id = ? AND is_deleted = 0`
+		SELECT exercise_id, exercise_name, muscle_group_id
+		FROM exercises
+		WHERE exercise_id = ? AND is_deleted = 0`
 
-	var excercise model.Excercise
+	var exercise model.Exercise
 	err := r.database.QueryRowContext(ctx, statement, id).Scan(
-		&excercise.ID,
-		&excercise.Name,
-		&excercise.MuscleGroupID,
+		&exercise.ID,
+		&exercise.Name,
+		&exercise.MuscleGroupID,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return model.Excercise{}, ErrExcerciseNotFound
+		return model.Exercise{}, ErrExerciseNotFound
 	}
 	if err != nil {
-		return model.Excercise{}, fmt.Errorf("query excercise by id: %w", err)
+		return model.Exercise{}, fmt.Errorf("query exercise by id: %w", err)
 	}
-	return excercise, nil
+	return exercise, nil
 }
 
-func (r *ExcerciseRepository) Create(
+func (r *ExerciseRepository) Create(
 	ctx context.Context,
 	name string,
 	muscleGroupID int64,
-) (model.Excercise, error) {
+) (model.Exercise, error) {
 	const statement = `
-		INSERT INTO excercises (excercise_name, muscle_group_id)
+		INSERT INTO exercises (exercise_name, muscle_group_id)
 		VALUES (?, ?)`
 
 	result, err := r.database.ExecContext(ctx, statement, name, muscleGroupID)
 	if err != nil {
-		return model.Excercise{}, excerciseWriteError("create excercise", err)
+		return model.Exercise{}, exerciseWriteError("create exercise", err)
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return model.Excercise{}, fmt.Errorf("get created excercise id: %w", err)
+		return model.Exercise{}, fmt.Errorf("get created exercise id: %w", err)
 	}
 	return r.GetByID(ctx, id)
 }
 
-func (r *ExcerciseRepository) Update(
+func (r *ExerciseRepository) Update(
 	ctx context.Context,
 	id int64,
 	name *string,
 	muscleGroupID *int64,
-) (model.Excercise, error) {
+) (model.Exercise, error) {
 	assignments := make([]string, 0, 2)
 	arguments := make([]any, 0, 3)
 	if name != nil {
-		assignments = append(assignments, "excercise_name = ?")
+		assignments = append(assignments, "exercise_name = ?")
 		arguments = append(arguments, *name)
 	}
 	if muscleGroupID != nil {
@@ -107,28 +107,28 @@ func (r *ExcerciseRepository) Update(
 	if len(assignments) == 0 {
 		return r.GetByID(ctx, id)
 	}
-	statement := `UPDATE excercises SET ` + strings.Join(assignments, ", ") +
-		` WHERE excercise_id = ? AND is_deleted = 0`
+	statement := `UPDATE exercises SET ` + strings.Join(assignments, ", ") +
+		` WHERE exercise_id = ? AND is_deleted = 0`
 	arguments = append(arguments, id)
 
 	_, err := r.database.ExecContext(ctx, statement, arguments...)
 	if err != nil {
-		return model.Excercise{}, excerciseWriteError("update excercise", err)
+		return model.Exercise{}, exerciseWriteError("update exercise", err)
 	}
 	// Reading the row also distinguishes a no-op update from a missing or
 	// already-deleted exercise.
 	return r.GetByID(ctx, id)
 }
 
-func (r *ExcerciseRepository) SoftDelete(ctx context.Context, id int64) (bool, error) {
+func (r *ExerciseRepository) SoftDelete(ctx context.Context, id int64) (bool, error) {
 	const statement = `
-		UPDATE excercises
+		UPDATE exercises
 		SET is_deleted = 1
-		WHERE excercise_id = ? AND is_deleted = 0`
+		WHERE exercise_id = ? AND is_deleted = 0`
 
 	result, err := r.database.ExecContext(ctx, statement, id)
 	if err != nil {
-		return false, fmt.Errorf("soft delete excercise: %w", err)
+		return false, fmt.Errorf("soft delete exercise: %w", err)
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
@@ -137,11 +137,11 @@ func (r *ExcerciseRepository) SoftDelete(ctx context.Context, id int64) (bool, e
 	return rowsAffected > 0, nil
 }
 
-func (r *ExcerciseRepository) list(
+func (r *ExerciseRepository) list(
 	ctx context.Context,
-	query model.ExcerciseQuery,
+	query model.ExerciseQuery,
 	muscleGroupID *int64,
-) ([]model.Excercise, int64, error) {
+) ([]model.Exercise, int64, error) {
 	conditions := []string{"is_deleted = 0"}
 	arguments := make([]any, 0, 4)
 	if muscleGroupID != nil {
@@ -149,33 +149,33 @@ func (r *ExcerciseRepository) list(
 		arguments = append(arguments, *muscleGroupID)
 	}
 	if query.Search != "" {
-		conditions = append(conditions, "excercise_name LIKE ?")
+		conditions = append(conditions, "exercise_name LIKE ?")
 		arguments = append(arguments, "%"+query.Search+"%")
 	}
 	whereClause := strings.Join(conditions, " AND ")
 
-	countStatement := "SELECT COUNT(*) FROM excercises WHERE " + whereClause
+	countStatement := "SELECT COUNT(*) FROM exercises WHERE " + whereClause
 	var total int64
 	if err := r.database.QueryRowContext(ctx, countStatement, arguments...).Scan(&total); err != nil {
-		return nil, 0, fmt.Errorf("count excercises: %w", err)
+		return nil, 0, fmt.Errorf("count exercises: %w", err)
 	}
 
-	items := make([]model.Excercise, 0, query.PageSize)
+	items := make([]model.Exercise, 0, query.PageSize)
 	if total == 0 {
 		return items, 0, nil
 	}
 
-	sortColumn, ok := excerciseSortColumns[query.SortBy]
+	sortColumn, ok := exerciseSortColumns[query.SortBy]
 	if !ok {
-		sortColumn = "excercise_id"
+		sortColumn = "exercise_id"
 	}
 	sortOrder := "ASC"
 	if strings.EqualFold(query.SortOrder, "desc") {
 		sortOrder = "DESC"
 	}
 	statement := `
-		SELECT excercise_id, excercise_name, muscle_group_id
-		FROM excercises
+		SELECT exercise_id, exercise_name, muscle_group_id
+		FROM exercises
 		WHERE ` + whereClause + `
 		ORDER BY ` + sortColumn + ` ` + sortOrder + `
 		LIMIT ? OFFSET ?`
@@ -183,31 +183,31 @@ func (r *ExcerciseRepository) list(
 
 	rows, err := r.database.QueryContext(ctx, statement, listArguments...)
 	if err != nil {
-		return nil, 0, fmt.Errorf("query excercises: %w", err)
+		return nil, 0, fmt.Errorf("query exercises: %w", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var excercise model.Excercise
-		if err := rows.Scan(&excercise.ID, &excercise.Name, &excercise.MuscleGroupID); err != nil {
-			return nil, 0, fmt.Errorf("scan excercise: %w", err)
+		var exercise model.Exercise
+		if err := rows.Scan(&exercise.ID, &exercise.Name, &exercise.MuscleGroupID); err != nil {
+			return nil, 0, fmt.Errorf("scan exercise: %w", err)
 		}
-		items = append(items, excercise)
+		items = append(items, exercise)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, 0, fmt.Errorf("iterate excercises: %w", err)
+		return nil, 0, fmt.Errorf("iterate exercises: %w", err)
 	}
 	return items, total, nil
 }
 
-func excerciseWriteError(operation string, err error) error {
+func exerciseWriteError(operation string, err error) error {
 	var mysqlError *driver.MySQLError
 	if errors.As(err, &mysqlError) {
 		switch mysqlError.Number {
 		case 1062:
-			return ErrExcerciseNameConflict
+			return ErrExerciseNameConflict
 		case 1452:
-			return ErrExcerciseMuscleGroupAbsent
+			return ErrExerciseMuscleGroupAbsent
 		}
 	}
 	return fmt.Errorf("%s: %w", operation, err)

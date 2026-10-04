@@ -32,33 +32,33 @@ func (muscleGroupReader) GetByName(context.Context, string) (model.MuscleGroup, 
 	return model.MuscleGroup{ID: 1, Name: "chest", DisplayName: "Chest"}, nil
 }
 
-type excerciseManager struct{}
+type exerciseManager struct{}
 
-func (excerciseManager) GetAll(context.Context, model.ExcerciseQuery) (model.ExcercisePage, error) {
-	return model.ExcercisePage{Items: []model.Excercise{}, Page: 1, PageSize: 20}, nil
+func (exerciseManager) GetAll(context.Context, model.ExerciseQuery) (model.ExercisePage, error) {
+	return model.ExercisePage{Items: []model.Exercise{}, Page: 1, PageSize: 20}, nil
 }
 
-func (excerciseManager) GetByID(context.Context, int64) (model.Excercise, error) {
-	return model.Excercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
+func (exerciseManager) GetByID(context.Context, int64) (model.Exercise, error) {
+	return model.Exercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
 }
 
-func (excerciseManager) GetByMuscleGroup(
+func (exerciseManager) GetByMuscleGroup(
 	context.Context,
 	int64,
-	model.ExcerciseQuery,
-) (model.ExcercisePage, error) {
-	return model.ExcercisePage{Items: []model.Excercise{}, Page: 1, PageSize: 20}, nil
+	model.ExerciseQuery,
+) (model.ExercisePage, error) {
+	return model.ExercisePage{Items: []model.Exercise{}, Page: 1, PageSize: 20}, nil
 }
 
-func (excerciseManager) Create(context.Context, string, int64) (model.Excercise, error) {
-	return model.Excercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
+func (exerciseManager) Create(context.Context, string, int64) (model.Exercise, error) {
+	return model.Exercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
 }
 
-func (excerciseManager) Update(context.Context, int64, *string, *int64) (model.Excercise, error) {
-	return model.Excercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
+func (exerciseManager) Update(context.Context, int64, *string, *int64) (model.Exercise, error) {
+	return model.Exercise{ID: 1, Name: "Bench Press", MuscleGroupID: 1}, nil
 }
 
-func (excerciseManager) Delete(context.Context, int64) error { return nil }
+func (exerciseManager) Delete(context.Context, int64) error { return nil }
 
 type workoutRoutineManager struct{}
 
@@ -98,7 +98,7 @@ func TestRegister(t *testing.T) {
 		e,
 		controller.NewHealthController(healthyChecker{}),
 		controller.NewMuscleGroupController(muscleGroupReader{}),
-		controller.NewExcerciseController(excerciseManager{}),
+		controller.NewExerciseController(exerciseManager{}),
 		controller.NewWorkoutRoutineController(workoutRoutineManager{}),
 	)
 
@@ -108,9 +108,9 @@ func TestRegister(t *testing.T) {
 		"/api/json/muscle-groups",
 		"/api/json/muscle-groups/1",
 		"/api/json/muscle-groups/name/Chest",
-		"/api/json/excercises",
-		"/api/json/excercises/1",
-		"/api/json/muscle-groups/1/excercises",
+		"/api/json/exercises",
+		"/api/json/exercises/1",
+		"/api/json/muscle-groups/1/exercises",
 		"/api/json/workout-routines",
 		"/api/json/workout-routines/1",
 	} {
