@@ -92,6 +92,45 @@ func (workoutRoutineManager) Update(
 
 func (workoutRoutineManager) Delete(context.Context, int64) error { return nil }
 
+type workoutRoutineExerciseManager struct{}
+
+func (workoutRoutineExerciseManager) GetAll(
+	context.Context,
+	int64,
+	model.WorkoutRoutineExerciseQuery,
+) (model.WorkoutRoutineExercisePage, error) {
+	return model.WorkoutRoutineExercisePage{
+		Items: []model.WorkoutRoutineExercise{}, Page: 1, PageSize: 20,
+	}, nil
+}
+
+func (workoutRoutineExerciseManager) Create(
+	context.Context,
+	int64,
+	int64,
+) (model.WorkoutRoutineExercise, error) {
+	return model.WorkoutRoutineExercise{}, nil
+}
+
+func (workoutRoutineExerciseManager) CreateMany(
+	context.Context,
+	int64,
+	[]int64,
+) ([]model.WorkoutRoutineExercise, error) {
+	return []model.WorkoutRoutineExercise{}, nil
+}
+
+func (workoutRoutineExerciseManager) Delete(context.Context, int64, int64) error { return nil }
+
+func (workoutRoutineExerciseManager) Reorder(
+	context.Context,
+	int64,
+	int64,
+	int,
+) (model.WorkoutRoutineExercise, error) {
+	return model.WorkoutRoutineExercise{}, nil
+}
+
 func TestRegister(t *testing.T) {
 	e := echo.New()
 	Register(
@@ -100,6 +139,7 @@ func TestRegister(t *testing.T) {
 		controller.NewMuscleGroupController(muscleGroupReader{}),
 		controller.NewExerciseController(exerciseManager{}),
 		controller.NewWorkoutRoutineController(workoutRoutineManager{}),
+		controller.NewWorkoutRoutineExerciseController(workoutRoutineExerciseManager{}),
 	)
 
 	for _, path := range []string{
@@ -113,6 +153,7 @@ func TestRegister(t *testing.T) {
 		"/api/json/muscle-groups/1/exercises",
 		"/api/json/workout-routines",
 		"/api/json/workout-routines/1",
+		"/api/json/workout-routines/1/exercises",
 	} {
 		recorder := httptest.NewRecorder()
 		request := httptest.NewRequest(http.MethodGet, path, nil)
@@ -129,5 +170,17 @@ func TestRegister(t *testing.T) {
 		if recorder.Code != http.StatusNotFound {
 			t.Errorf("GET %s status = %d, want %d", path, recorder.Code, http.StatusNotFound)
 		}
+	}
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		http.MethodPost,
+		"/api/json/workout-routines/1/exercises/bulk",
+		nil,
+	)
+	e.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusCreated {
+		t.Errorf("POST bulk routine exercises status = %d, want %d",
+			recorder.Code, http.StatusCreated)
 	}
 }

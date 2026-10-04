@@ -84,12 +84,20 @@ func run() error {
 	workoutRoutineRepository := repository.NewWorkoutRoutineRepository(db)
 	workoutRoutineService := service.NewWorkoutRoutineService(workoutRoutineRepository)
 	workoutRoutineController := controller.NewWorkoutRoutineController(workoutRoutineService)
+	workoutRoutineExerciseRepository := repository.NewWorkoutRoutineExerciseRepository(db)
+	workoutRoutineExerciseService := service.NewWorkoutRoutineExerciseService(
+		workoutRoutineExerciseRepository,
+	)
+	workoutRoutineExerciseController := controller.NewWorkoutRoutineExerciseController(
+		workoutRoutineExerciseService,
+	)
 	routes.Register(
 		e,
 		healthController,
 		muscleGroupController,
 		exerciseController,
 		workoutRoutineController,
+		workoutRoutineExerciseController,
 	)
 
 	server := &http.Server{

@@ -52,6 +52,11 @@ The server exposes:
 - `POST /api/json/workout-routines` — create a workout routine
 - `PATCH /api/json/workout-routines/:id` — update a workout routine name and/or description
 - `DELETE /api/json/workout-routines/:id` — permanently delete a workout routine
+- `GET /api/json/workout-routines/:routine_id/exercises` — list exercises in a routine
+- `POST /api/json/workout-routines/:routine_id/exercises` — append an exercise to a routine
+- `POST /api/json/workout-routines/:routine_id/exercises/bulk` — append multiple exercises atomically
+- `DELETE /api/json/workout-routines/:routine_id/exercises/:exercise_id` — remove an exercise from a routine
+- `PATCH /api/json/workout-routines/:routine_id/exercises/:exercise_id/order` — move an exercise to a new position
 
 Exercise collection endpoints accept `page` (default `1`), `page_size`
 (default `20`, maximum `100`), `search`, `sort_by`, and `sort_order`. Valid
@@ -105,6 +110,42 @@ description, or both. A blank or whitespace-only description is stored as
   "workout_routine_description": "Chest, shoulders, and triceps"
 }
 ```
+
+Routine exercise collection endpoints accept `page` (default `1`),
+`page_size` (default `20`, maximum `100`), `search`, `sort_by`, and
+`sort_order`. Search matches the exercise name. Valid sort fields are
+`exercise_order`, `exercise_id`, `exercise_name`, and `muscle_group_id`;
+the default is `exercise_order asc`.
+
+Append an exercise to the end of a routine:
+
+```json
+{
+  "exercise_id": 12
+}
+```
+
+Append multiple exercises atomically. Their input order becomes their order in
+the routine. If any exercise cannot be added, none are added:
+
+```json
+{
+  "exercise_ids": [12, 15, 8]
+}
+```
+
+Move an exercise to a one-based position in the complete routine. The
+position is independent of pagination and search filters:
+
+```json
+{
+  "destination_position": 3
+}
+```
+
+Exercise order values are returned as exact three-decimal strings. Reordering
+normally updates only the moved exercise; if adjacent values have no remaining
+decimal space, the routine is renumbered atomically before applying the move.
 
 Run the tests with:
 

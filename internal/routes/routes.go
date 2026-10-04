@@ -12,6 +12,7 @@ func Register(
 	muscleGroups *controller.MuscleGroupController,
 	exercises *controller.ExerciseController,
 	workoutRoutines *controller.WorkoutRoutineController,
+	workoutRoutineExercises *controller.WorkoutRoutineExerciseController,
 ) {
 	api := e.Group("/api/json")
 
@@ -33,4 +34,16 @@ func Register(
 	api.GET("/workout-routines/:id", workoutRoutines.GetByID)
 	api.PATCH("/workout-routines/:id", workoutRoutines.Update)
 	api.DELETE("/workout-routines/:id", workoutRoutines.Delete)
+
+	api.GET("/workout-routines/:routine_id/exercises", workoutRoutineExercises.GetAll)
+	api.POST("/workout-routines/:routine_id/exercises", workoutRoutineExercises.Create)
+	api.POST("/workout-routines/:routine_id/exercises/bulk", workoutRoutineExercises.CreateMany)
+	api.DELETE(
+		"/workout-routines/:routine_id/exercises/:exercise_id",
+		workoutRoutineExercises.Delete,
+	)
+	api.PATCH(
+		"/workout-routines/:routine_id/exercises/:exercise_id/order",
+		workoutRoutineExercises.Reorder,
+	)
 }
